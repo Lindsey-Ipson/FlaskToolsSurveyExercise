@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
+from surveys import satisfaction_survey as survey
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'oh-so-secret'
@@ -7,9 +8,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-from surveys import satisfaction_survey as survey
-
-responses = []
+RESPONSES_KEY = 'responses'
 
 @app.route('/')
 def survey_intro():
@@ -19,14 +18,14 @@ def survey_intro():
 
 @app.route('/start', methods=['POST'])
 def start_survey():
-    # session[RESPONSES_KEY] = []
+    session[RESPONSES_KEY] = []
 
     return redirect('/questions/0')
 
 @app.route('/questions/<int:quest_id>')
 def display_question(quest_id):
     """Shows current survey question and lists choices as radio buttons"""
-    # responses = session.get(REPSONSES_KEY)
+    responses = session.get(RESPONSES_KEY)
 
     if (responses is None):
         return redirect('/')
@@ -46,19 +45,15 @@ def display_question(quest_id):
 def send_answer():
     """Save answer and redirect to next question"""
 
-    print(request.form)
-
     #get the user's selection
     selection = request.form['answer']
 
-    print(selection)
-
     #add selection to to the session responses
-    # responses = session[RESPONSES_KEY]
+    responses = session[RESPONSES_KEY]
     responses.append(selection)
-    # session[RESPONSES_KEY] = responses
+    session[RESPONSES_KEY] = responses
 
-    print(responses)
+    print(session)
 
     if (len(responses) == len(survey.questions)):
         return redirect('/complete')
