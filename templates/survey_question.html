@@ -10,6 +10,9 @@
         <input type='radio' name='answer' value='{{choice}}'> {{choice}}
     </p>
     {% endfor %}
+    {% if question.allow_text %}
+  <textarea name="text"></textarea>
+  {% endif %}
     <button>Continue</button>
 </form>
 {% endblock %}
